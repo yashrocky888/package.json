@@ -5,7 +5,7 @@
     "node": ">=18.0.0"
   },
   "scripts": {
-    "start": "node src/server.js",
+    "start": "npm run build:css && node src/server.js",
     "build:css": "tailwindcss -i ./public/css/tailwind.css -o ./public/css/styles.css",
     "dev": "nodemon src/server.js"
   },
