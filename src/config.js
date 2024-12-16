@@ -1,3 +1,5 @@
+require('dotenv').config();
+
 module.exports = {
-    GEMINI_API_KEY: 'AIzaSyAc0bPlXyApEe8Ttgfa6AeJryR3yzOimXI'
+    GEMINI_API_KEY: process.env.GEMINI_API_KEY
 }; 

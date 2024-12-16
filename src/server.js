@@ -9,6 +9,11 @@ const { unlink } = require('fs').promises;
 const app = express();
 const port = process.env.PORT || 3000;
 
+// Health check endpoint for Render
+app.get('/health', (req, res) => {
+    res.status(200).send('OK');
+});
+
 // Initialize Gemini AI
 const genAI = new GoogleGenerativeAI(config.GEMINI_API_KEY);
 
@@ -44,9 +49,16 @@ async function fileToGenerativePart(path, mimeType) {
     };
 }
 
-// Ensure uploads directory exists
+// Ensure required directories exist
+const publicDir = path.join(__dirname, '../public');
 const uploadDir = path.join(__dirname, '../public/uploads');
-fs.mkdir(uploadDir, { recursive: true }).catch(console.error);
+const cssDir = path.join(__dirname, '../public/css');
+
+Promise.all([
+    fs.mkdir(publicDir, { recursive: true }),
+    fs.mkdir(uploadDir, { recursive: true }),
+    fs.mkdir(cssDir, { recursive: true })
+]).catch(console.error);
 
 // Add this function
 async function cleanupOldUploads() {
@@ -143,5 +155,11 @@ app.post('/upload', async (req, res) => {
 });
 
 app.listen(port, () => {
-    console.log(`Server running on port ${port}`);
+    console.log(`
+        Server Status: Running
+        Port: ${port}
+        Environment: ${process.env.NODE_ENV}
+        API Key Present: ${!!process.env.GEMINI_API_KEY}
+        Upload Directory: ${uploadDir}
+    `);
 }); 
