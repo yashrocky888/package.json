@@ -117,11 +117,53 @@
         <% } %>
 
         <% if (locals.result) { %>
-            <div class="mt-6 p-6 bg-gray-50 rounded-2xl shadow-lg prose prose-sm max-w-none">
-                <div id="analysis"></div>
+            <div class="mt-6 space-y-6">
+                <!-- Language Toggle Buttons -->
+                <div class="flex justify-center gap-4">
+                    <button onclick="showLanguage('english')" 
+                            class="px-4 py-2 rounded-lg bg-green-600 text-white hover:bg-green-700 transition-colors language-btn"
+                            id="englishBtn">
+                        English
+                    </button>
+                    <button onclick="showLanguage('kannada')"
+                            class="px-4 py-2 rounded-lg bg-green-600 text-white hover:bg-green-700 transition-colors language-btn"
+                            id="kannadaBtn">
+                        ಕನ್ನಡ
+                    </button>
+                </div>
+                
+                <!-- English Content -->
+                <div id="englishContent" class="p-6 bg-gray-50 rounded-2xl shadow-lg prose prose-sm max-w-none">
+                    <div id="analysis"></div>
+                </div>
+                
+                <!-- Kannada Content -->
+                <div id="kannadaContent" class="hidden p-6 bg-gray-50 rounded-2xl shadow-lg prose prose-sm max-w-none">
+                    <div id="analysisKannada"></div>
+                </div>
             </div>
             <script>
                 document.getElementById('analysis').innerHTML = marked.parse(`<%= result %>`);
+                document.getElementById('analysisKannada').innerHTML = marked.parse(`<%= kannada %>`);
+                
+                function showLanguage(lang) {
+                    const englishContent = document.getElementById('englishContent');
+                    const kannadaContent = document.getElementById('kannadaContent');
+                    const englishBtn = document.getElementById('englishBtn');
+                    const kannadaBtn = document.getElementById('kannadaBtn');
+                    
+                    if (lang === 'english') {
+                        englishContent.classList.remove('hidden');
+                        kannadaContent.classList.add('hidden');
+                        englishBtn.classList.add('bg-green-700');
+                        kannadaBtn.classList.remove('bg-green-700');
+                    } else {
+                        englishContent.classList.add('hidden');
+                        kannadaContent.classList.remove('hidden');
+                        englishBtn.classList.remove('bg-green-700');
+                        kannadaBtn.classList.add('bg-green-700');
+                    }
+                }
             </script>
         <% } %>
     </div>

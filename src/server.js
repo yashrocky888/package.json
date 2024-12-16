@@ -7,7 +7,7 @@ const config = require('./config');
 const { unlink } = require('fs').promises;
 
 const app = express();
-const port = process.env.PORT || 3000;
+const port = process.env.PORT || 10000;
 
 // Health check endpoint for Render
 app.get('/health', (req, res) => {
@@ -82,9 +82,34 @@ async function cleanupOldUploads() {
 // Add cleanup interval
 setInterval(cleanupOldUploads, 3600000); // Run every hour
 
+// Helper function to translate text to Kannada
+async function translateToKannada(text) {
+    try {
+        const model = genAI.getGenerativeModel({ model: "gemini-1.5-pro" });
+        const prompt = `You are a professional English to Kannada translator. 
+            Translate the following plant information to Kannada while:
+            1. Maintaining all markdown formatting (#, -, *, etc.)
+            2. Keeping scientific names in English
+            3. Using proper Kannada botanical terms
+            4. Making the translation natural and easy to understand
+            5. Preserving the structure and bullet points
+            
+            Here's the text to translate:
+            
+            ${text}`;
+        
+        const result = await model.generateContent(prompt);
+        const response = await result.response;
+        return response.text();
+    } catch (error) {
+        console.error('Translation error:', error);
+        return text; // Return original text if translation fails
+    }
+}
+
 // Routes
 app.get('/', (req, res) => {
-    res.render('index', { result: null });
+    res.render('index', { result: null, kannada: null });
 });
 
 app.post('/upload', async (req, res) => {
@@ -137,10 +162,12 @@ app.post('/upload', async (req, res) => {
                 throw new Error('No response generated');
             }
             const text = response.text();
+            const kannadaText = await translateToKannada(text);
 
             // Render the result
             res.render('index', { 
                 result: text,
+                kannada: kannadaText,
                 image: '/uploads/' + req.file.filename
             });
 
@@ -148,7 +175,8 @@ app.post('/upload', async (req, res) => {
             console.error('Error:', error);
             res.render('index', { 
                 error: error.message || 'An error occurred while analyzing the image. Please try again.',
-                result: null
+                result: null,
+                kannada: null
             });
         }
     });
